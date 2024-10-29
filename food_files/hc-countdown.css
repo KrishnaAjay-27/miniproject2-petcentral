@@ -1,0 +1,248 @@
+.hc_cd{
+    position: relative;
+    z-index: 100;
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    column-gap: 26px;
+    row-gap: 10px;
+    border-style:solid;
+    border-width: 0;
+    box-sizing: border-box;
+    z-index: 4;
+    --timer-background-color: #eee;
+}
+.hc_cd.clickable{
+  cursor: pointer;
+}
+.hc_cd.hc_cd_sticky{
+  position:fixed;
+  left:0; 
+  top:0;
+  z-index:999;
+}
+.hc_cd.hc_cd_p{
+  flex-direction: column;
+}
+.hc_cd.at_top{
+  border-top-width:0!important;
+  border-left-width:0!important;
+  border-right-width:0!important;
+}
+.hc_cd.at_bottom{
+  position:fixed;
+  left:0; 
+  bottom:0;
+  z-index:999;
+  border-bottom-width:0!important;
+  border-left-width:0!important;
+  border-right-width:0!important;
+}
+.hc_cd .hc_cd_heading{
+    font-weight: bold;
+    margin: 0!important;
+    padding: 0!important;
+    line-height: 1.2;
+    letter-spacing: normal;
+    text-transform: none;
+    text-align:left;
+}
+.hc_cd .hc_cd_subheading{
+    line-height: 1.2;
+    letter-spacing: normal;
+    padding: 0;
+    margin: 0;
+    text-align:left;
+}
+.hc_cd.hc_cd_p .hc_cd_heading, .hc_cd.hc_cd_p .hc_cd_subheading{
+  text-align:center;
+}
+.hc_cd .hc_cd_button{
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+    border: 0px;
+    white-space: nowrap;
+    padding: 8px 16px;
+    line-height: 1.5;
+}
+.hc_cd .hc_cd_button:empty{
+  display:none;
+}
+.hc_cd.hc_cd_p .hc_cd_button{
+  display:none
+}
+.hc_cd .hc_cd_button:hover{
+  opacity: .8;
+}
+.hc_cd-timer.timer_1{
+    display: grid;
+    grid-template-columns: 1fr 10px 1fr 10px 1fr 10px 1fr;
+    row-gap: 4px;
+    justify-items: center;
+    align-items: center;
+    direction: ltr;
+    column-gap: 2px;
+}
+.hc_cd-timer.timer_1 .hc_cd_timernum{
+    font-weight: bold;
+    line-height: 1;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+.hc_cd-timer.timer_1 .hc_cd_timerlabel{
+    padding-right: 10px;
+    grid-column: 2 span;
+    line-height: 1;
+}
+.hc_cd-timer.timer_1 .hc_cd_timerlabel.last{
+    grid-column: auto;
+    padding-right: 0;
+}
+
+
+
+.hc_cd-timer.timer_2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    row-gap: 0;
+    column-gap: 4px;
+    text-align: center;
+}
+.hc_cd-timer.timer_2 .hc_cd_timercard {
+    padding: 4px;
+    border-radius: 3px;
+    background: var(--timer-background-color);
+    display: inline-block;
+}
+.hc_cd-timer.timer_2 .hc_cd_timernum{
+    font-weight: bold;
+    line-height: 1;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+}
+.hc_cd-timer.timer_2 .hc_cd_timerlabel{
+    line-height: 1;    
+}
+
+/* .timer_3 */
+.hc_cd-timer.timer_3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    row-gap: 4px;
+    column-gap: 4px;
+    text-align: center;
+    justify-items: center;
+    align-items: center;
+    perspective: 400px;
+    
+}
+.hc_cd-timer.timer_3 .hc_cd_timerlabel{
+    line-height: 1;
+}
+.hc_cd-timer *,
+.hc_cd-timer *:before,
+.hc_cd-timer *:after {
+  box-sizing: border-box;
+}
+
+.hc_cd-timer.timer_3 .hc_cd_timernum {
+  display: block;
+  position: relative;
+  padding-bottom: 0.72em;
+  font-size: 20px;
+  line-height: 0.95;
+}
+.hc_cd-timer.timer_3 .card__top,
+.hc_cd-timer.timer_3 .card__bottom,
+.hc_cd-timer.timer_3 .card__back::before,
+.hc_cd-timer.timer_3 .card__back::after {
+  display: block;
+  height: 0.72em;
+  background: var(--timer-background-color);
+  padding: 0.25em 0.25em;
+  border-radius: 0.15em 0.15em 0 0;
+  backface-visiblity: hidden;
+  transform-style: preserve-3d;
+  width: 1.8em;
+  transform: translateZ(0);
+}
+.hc_cd-timer.timer_3 .card__top{
+  overflow:hidden;
+}
+.hc_cd-timer.timer_3 .card__bottom {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-top: solid 1px var(--timer-background-color);
+  border-radius: 0 0 0.15em 0.15em;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hc_cd-timer.timer_3 .card__bottom::after {
+  display: block;
+  margin-top: -0.72em;
+}
+
+.hc_cd-timer.timer_3 .card__back::before,
+.hc_cd-timer.timer_3 .card__bottom::after {
+  content: attr(data-value);
+}
+.hc_cd-timer.timer_3 .card__back {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  left: 0%;
+  pointer-events: none;
+}
+.hc_cd-timer.timer_3 .card__back::before {
+  position: relative;
+  z-index: -1;
+  overflow: hidden;
+}
+.hc_cd-timer.timer_3 .flip .card__back::before {
+  animation: flipTop 0.3s cubic-bezier(.37,.01,.94,.35);
+  animation-fill-mode: both;
+  transform-origin: center bottom;
+}
+.hc_cd-timer.timer_3 .flip .card__back .card__bottom {
+  transform-origin: center top;
+  animation-fill-mode: both;
+  animation: flipBottom 0.6s cubic-bezier(.15,.45,.28,1);
+}
+@keyframes flipTop {
+  0% {
+    transform: rotateX(0deg);
+    z-index: 2;
+  }
+  0%,
+  99% {
+    opacity: 0.99;
+  }
+  100% {
+    transform: rotateX(-90deg);
+    opacity: 0;
+  }
+}
+@keyframes flipBottom {
+  0%,
+  50% {
+    z-index: -1;
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+  51% {
+    opacity: 0.99;
+  }
+  100% {
+    opacity: 0.99;
+    transform: rotateX(0deg);
+    z-index: 5;
+  }
+}

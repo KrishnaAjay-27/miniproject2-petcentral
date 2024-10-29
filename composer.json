@@ -1,0 +1,14 @@
+{
+    "name": "krishna-ajay/minproject-petcentral",
+    "description": "A pet central management project",
+    "autoload": {
+        "psr-4": {
+            "KrishnaAjay\\MinprojectPetcentral\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "phpmailer/phpmailer": "^6.9",
+        "google/apiclient": "^2.17"
+    }
+}
