@@ -1,7 +1,7 @@
 <?php
 // Start session
 session_start();
-
+require('connection.php');
 // Check if user is logged in
 if (!isset($_SESSION['uid'])) {
     header('Location: login.php');
@@ -9,7 +9,7 @@ if (!isset($_SESSION['uid'])) {
 }
 
 // Establish database connection
-$con = mysqli_connect("localhost", "root", "", "project");
+
 if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }

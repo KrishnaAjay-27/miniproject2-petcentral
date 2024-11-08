@@ -1,0 +1,182 @@
+[2024-09-22 12:57:21] File uploaded successfully: labor1.jpg
+[2024-09-22 12:58:21] Script started
+[2024-09-22 12:58:21] POST request confirmed
+[2024-09-22 12:58:21] File upload detected
+[2024-09-22 12:58:21] File uploaded successfully: labor1.jpg
+[2024-09-22 12:58:21] Error: GD Library is not installed or enabled
+[2024-09-22 12:58:21] Script ended
+[2024-09-22 12:59:39] Script started
+[2024-09-22 12:59:39] Uploaded file: labor1.jpg
+[2024-09-22 12:59:39] No match found for: labor1.jpg
+[2024-09-22 12:59:39] Script ended
+[2024-09-22 13:04:33] Script started
+[2024-09-22 13:04:33] Uploaded file: labor1.jpg
+[2024-09-22 13:04:33] Match found: Labrador Retrievers
+[2024-09-22 13:04:33] Script ended
+[2024-09-22 13:04:45] Script started
+[2024-09-22 13:04:45] Uploaded file: cat1.jpg
+[2024-09-22 13:04:45] No match found for: cat1.jpg
+[2024-09-22 13:04:45] Script ended
+[2024-09-22 13:12:27] Script started
+[2024-09-22 13:12:27] Received predictions: Array
+(
+    [0] => Array
+        (
+            [className] => Labrador retriever
+            [probability] => 0.90259152650833
+        )
+
+    [1] => Array
+        (
+            [className] => English foxhound
+            [probability] => 0.02415918186307
+        )
+
+    [2] => Array
+        (
+            [className] => golden retriever
+            [probability] => 0.012725111097097
+        )
+
+)
+
+[2024-09-22 13:12:27] No match found. Highest similarity: 0%
+[2024-09-22 13:12:27] Script ended
+[2024-09-22 13:12:29] Script started
+[2024-09-22 13:12:29] Received predictions: Array
+(
+    [0] => Array
+        (
+            [className] => Labrador retriever
+            [probability] => 0.90259152650833
+        )
+
+    [1] => Array
+        (
+            [className] => English foxhound
+            [probability] => 0.02415918186307
+        )
+
+    [2] => Array
+        (
+            [className] => golden retriever
+            [probability] => 0.012725111097097
+        )
+
+)
+
+[2024-09-22 13:12:29] No match found. Highest similarity: 0%
+[2024-09-22 13:12:29] Script ended
+[2024-09-22 13:13:31] Script started
+[2024-09-22 13:13:31] Received predictions: Array
+(
+    [0] => Array
+        (
+            [className] => Labrador retriever
+            [probability] => 0.90259152650833
+        )
+
+    [1] => Array
+        (
+            [className] => English foxhound
+            [probability] => 0.02415918186307
+        )
+
+    [2] => Array
+        (
+            [className] => golden retriever
+            [probability] => 0.012725111097097
+        )
+
+)
+
+[2024-09-22 13:13:31] Database breeds: Array
+(
+)
+
+[2024-09-22 13:13:31] Checking prediction: labrador retriever
+[2024-09-22 13:13:31] Checking prediction: english foxhound
+[2024-09-22 13:13:31] Checking prediction: golden retriever
+[2024-09-22 13:13:31] No match found. Highest similarity: 0% for 
+[2024-09-22 13:13:31] Script ended
+[2024-09-22 13:14:19] Script started
+[2024-09-22 13:14:19] Error: Invalid request or no file uploaded
+[2024-09-22 13:14:19] Script ended
+[2024-09-22 13:14:44] Script started
+[2024-09-22 13:14:44] Error: Invalid request or no file uploaded
+[2024-09-22 13:14:44] Script ended
+[2024-09-22 13:15:07] Script started
+[2024-09-22 13:15:07] Received predictions: Array
+(
+    [0] => Array
+        (
+            [className] => Labrador retriever
+            [probability] => 0.90259152650833
+        )
+
+    [1] => Array
+        (
+            [className] => English foxhound
+            [probability] => 0.02415918186307
+        )
+
+    [2] => Array
+        (
+            [className] => golden retriever
+            [probability] => 0.012725111097097
+        )
+
+)
+
+[2024-09-22 13:15:07] No match found. Highest similarity: 0%
+[2024-09-22 13:15:07] Script ended
+[2024-09-23 06:09:57] Script started
+[2024-09-23 06:09:57] Received predictions: Array
+(
+    [0] => Array
+        (
+            [className] => Persian cat
+            [probability] => 0.93069696426392
+        )
+
+    [1] => Array
+        (
+            [className] => Angora, Angora rabbit
+            [probability] => 0.049494490027428
+        )
+
+    [2] => Array
+        (
+            [className] => Egyptian cat
+            [probability] => 0.0020597896073014
+        )
+
+)
+
+[2024-09-23 06:09:57] No match found. Highest similarity: 0%
+[2024-09-23 06:09:57] Script ended
+[2024-09-23 06:10:10] Script started
+[2024-09-23 06:10:10] Received predictions: Array
+(
+    [0] => Array
+        (
+            [className] => Labrador retriever
+            [probability] => 0.90259152650833
+        )
+
+    [1] => Array
+        (
+            [className] => English foxhound
+            [probability] => 0.02415918186307
+        )
+
+    [2] => Array
+        (
+            [className] => golden retriever
+            [probability] => 0.012725111097097
+        )
+
+)
+
+[2024-09-23 06:10:10] No match found. Highest similarity: 0%
+[2024-09-23 06:10:10] Script ended
