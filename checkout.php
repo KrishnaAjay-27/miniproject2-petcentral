@@ -163,8 +163,19 @@
 $(document).ready(function() {
   $("#placeorder").submit(function(event) {
     event.preventDefault(); // Prevent default form submission behavior
+
+    // Get the total amount from the hidden input
+    var totalAmount = parseFloat($("input[name='total']").val());
+
+    // Check if the total amount is less than 10000
+    if (totalAmount < 10000) {
+      alert("The total amount must be at least ₹10,000 to proceed with the checkout.");
+      return false; // Prevent form submission
+    }
+
     // Collect form data
     var formData = $(this).serialize();
+
     // Send AJAX request to server
     $.ajax({
       url: 'process-form.php', // Insertion script URL
@@ -176,7 +187,7 @@ $(document).ready(function() {
         }
       }
     });
-    return false;
+    return false; // Prevent default form submission behavior
   });
 });
 		   </script>
@@ -737,8 +748,42 @@ button:hover {
     <div class="content1" >
       
     <table>
-      <?php
-       $query="select tbl_cart.cart_id,tbl_cart.size,tbl_cart.product_id,tbl_cart.quantity,tbl_cart.price,product_dog.name,product_dog.description,product_dog.image1 from tbl_cart join product_dog on tbl_cart.product_id=product_dog.product_id where lid='$userid'";
+      <?php 
+       $sql = "
+        SELECT 
+        tbl_cart.cart_id, 
+        tbl_cart.product_id, 
+        tbl_cart.quantity, 
+        tbl_cart.price, 
+        product_dog.name AS product_name, 
+        product_dog.image1 AS product_image, 
+        product_dog.description AS product_description, 
+        'dog' AS type 
+    FROM 
+        tbl_cart 
+    JOIN 
+        product_dog ON tbl_cart.product_id = product_dog.product_id 
+    WHERE 
+        tbl_cart.lid = '$userid'
+
+    UNION ALL
+
+    SELECT 
+        tbl_cart.cart_id, 
+        tbl_cart.petid AS product_id, 
+        tbl_cart.quantity, 
+        tbl_cart.price, 
+        productpet.product_name AS product_name, 
+        productpet.image1 AS product_image, 
+        productpet.description AS product_description, 
+        'pet' AS type 
+    FROM 
+        tbl_cart 
+    JOIN 
+        productpet ON tbl_cart.petid = productpet.petid 
+    WHERE 
+        tbl_cart.lid = '$userid'
+";
        $result=mysqli_query($con,$query);
        
        $subtotal=0;

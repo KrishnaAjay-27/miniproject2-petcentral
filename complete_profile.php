@@ -1,5 +1,6 @@
 <?php
 session_start();
+require('connection.php');
 
 // Check if the user is logged in
 if (!isset($_SESSION['uid'])) {
@@ -118,39 +119,64 @@ if (!isset($_SESSION['uid'])) {
         }
         .error-message {
             color: red;
-            text-align: center;
-            margin-bottom: 15px;
+            font-size: 12px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
         }
     </style>
 </head>
 <script>
-        function validateForm() {
-            var landmark = document.getElementById("landmark").value;
-            var roadname = document.getElementById("roadname").value;
-            var pincode = document.getElementById("pincode").value;
+function validateLandmark() {
+    var landmark = document.getElementById("landmark").value;
+    var landmarkError = document.getElementById("landmarkError");
+    var landmarkRegex = /^[A-Za-z\s]+$/;
+    
+    if (!landmarkRegex.test(landmark)) {
+        landmarkError.style.display = "block";
+        return false;
+    } else {
+        landmarkError.style.display = "none";
+        return true;
+    }
+}
 
-            var landmarkRegex = /^[A-Za-z0-9\s]+$/;
-            var roadnameRegex = /^[A-Za-z0-9\s]+$/;
-            var pincodeRegex = /^\d{6}$/;
+function validateRoadname() {
+    var roadname = document.getElementById("roadname").value;
+    var roadnameError = document.getElementById("roadnameError");
+    var roadnameRegex = /^[A-Za-z0-9\s]+$/;
+    
+    if (!roadnameRegex.test(roadname)) {
+        roadnameError.style.display = "block";
+        return false;
+    } else {
+        roadnameError.style.display = "none";
+        return true;
+    }
+}
 
-            if (!landmarkRegex.test(landmark)) {
-                alert("Landmark should not contain special characters.");
-                return false;
-            }
+function validatePincode() {
+    var pincode = document.getElementById("pincode").value;
+    var pincodeError = document.getElementById("pincodeError");
+    var pincodeRegex = /^6\d{5}$/;
+    
+    if (!pincodeRegex.test(pincode)) {
+        pincodeError.style.display = "block";
+        return false;
+    } else {
+        pincodeError.style.display = "none";
+        return true;
+    }
+}
 
-            if (!roadnameRegex.test(roadname)) {
-                alert("Road name should not contain special characters.");
-                return false;
-            }
+function validateForm() {
+    var isLandmarkValid = validateLandmark();
+    var isRoadnameValid = validateRoadname();
+    var isPincodeValid = validatePincode();
 
-            if (!pincodeRegex.test(pincode)) {
-                alert("Pincode should be a 6-digit number.");
-                return false;
-            }
-
-            return true;
-        }
-    </script>
+    return isLandmarkValid && isRoadnameValid && isPincodeValid;
+}
+</script>
 <body>
 
     <div class="profile-container">
@@ -158,15 +184,18 @@ if (!isset($_SESSION['uid'])) {
         <?php if (isset($error)): ?>
             <div class="error-message"><?php echo $error; ?></div>
         <?php endif; ?>
-        <form method="POST" action="">
+        <form method="POST" action="" onsubmit="return validateForm()">
             <label for="landmark">Landmark</label>
-            <input type="text" id="landmark" name="landmark" required>
+            <input type="text" id="landmark" name="landmark" required onkeyup="validateLandmark()">
+            <div id="landmarkError" class="error-message">Landmark should only contain letters and spaces.</div>
 
             <label for="pincode">Pincode</label>
-            <input type="text" id="pincode" name="pincode" required pattern="[0-9]{6}" title="Please enter a valid 6-digit pincode">
+            <input type="text" id="pincode" name="pincode" required onkeyup="validatePincode()">
+            <div id="pincodeError" class="error-message">Pincode should start with 6 and be exactly 6 digits long.</div>
 
             <label for="roadname">Road Name</label>
-            <input type="text" id="roadname" name="roadname" required>
+            <input type="text" id="roadname" name="roadname" required onkeyup="validateRoadname()">
+            <div id="roadnameError" class="error-message">Road name should not contain special characters.</div>
 
             <label for="district">District</label>
             <select id="district" name="district" required>
