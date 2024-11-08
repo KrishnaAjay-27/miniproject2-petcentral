@@ -1,5 +1,6 @@
 <?php
 session_start();
+require('connection.php');
 if (!isset($_SESSION['uid']) || $_SESSION['u_type'] != 0) {
     header('Location: login.php');
     exit();
@@ -207,7 +208,8 @@ mysqli_close($con);
         <a href="viewcategory.php">View Categories</a>
         <a href="viewsubcategory.php">View Sub categories</a>
         <a href="addsuppliers.php">Add Suppliers</a>
-        <a href="managesupplieadmin.php">Manage Supliers</a>
+        <a href="managesupplieadmin.php">Manage Suppliers</a>
+        <a href="fetch_products.php">View Products</a>
     </div>
     <div class="main-content">
         <div class="header">

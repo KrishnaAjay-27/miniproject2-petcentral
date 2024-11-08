@@ -1,447 +1,530 @@
 <?php
-    include("header.php");
-    include("goback.php");
-    require('connection.php');
-    if(isset($_SESSION['uid']))
-                               {
-                               $userid=$_SESSION['uid'];
-                               $query="select * from registration where lid='$userid'";
-                               $re=mysqli_query($con,$query);
-                               $row=mysqli_fetch_array($re);
-                               }
-    else{
-        
-echo"<script>window.location.href='login.php';</script>";
-    }
+include("header.php");
+require('connection.php');
+
+if(isset($_SESSION['uid'])) {
+    $userid = $_SESSION['uid'];
+} else {
+    echo "<script>window.location.href='login.php';</script>";
+}
+
+// Query for dogs
+$sql_dogs = "
+    SELECT 
+        tbl_cart.cart_id, 
+        tbl_cart.product_id, 
+        tbl_cart.quantity, 
+        tbl_cart.price, 
+        product_dog.name AS product_name, 
+        product_dog.image1 AS product_image, 
+        product_dog.description AS product_description, 
+        'dog' AS type 
+    FROM 
+        tbl_cart 
+    JOIN 
+        product_dog ON tbl_cart.product_id = product_dog.product_id 
+    WHERE 
+        tbl_cart.lid = '$userid'
+";
+$res_dogs = mysqli_query($con, $sql_dogs);
+
+// Query for pets
+$sql_pets = "
+    SELECT 
+        tbl_cart.cart_id, 
+        tbl_cart.petid AS product_id, 
+        tbl_cart.quantity, 
+        tbl_cart.price, 
+        productpet.product_name AS product_name, 
+        productpet.image1 AS product_image, 
+        productpet.description AS product_description, 
+        'pet' AS type 
+    FROM 
+        tbl_cart 
+    JOIN 
+        productpet ON tbl_cart.petid = productpet.petid 
+    WHERE 
+        tbl_cart.lid = '$userid'
+";
+$res_pets = mysqli_query($con, $sql_pets);
+
+if (!$res_dogs || !$res_pets) {
+    die("Query failed: " . mysqli_error($con));
+}
+
+$subtotal_dogs = 0;
+$subtotal_pets = 0;
+$shipping = 50;
 ?>
+
 <!DOCTYPE html>
-  <head>
-    <title>mycart</title>
+<html>
+<head>
+    <title>My Cart</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
-      .div{
-        margin-top:0;
-        height:170px;
-        width:100%;
-        margin-top:-140px;
-      }
-      /* .div img{
-        height:180px;
-        width:100%;
-      } */
-      .div h3{
-        padding-top:100px;
-        margin-left:100px;
-        font-size:30px;
-        font-weight:600;
-      }
-      .cart{
-        min-height:800px;
-        width:100%;
-        height:auto;
-        /* background-image:url("images/cartbg.jpg");
-        background-size:cover;
-        background-attachment:fixed; */
-        display:grid;
-        grid-template-columns: repeat(2,1fr);
-        gap:3px;
-      }
-      
-      .video{
-        margin-left:500px;
-        margin-top:10px;
-        margin-bottom:30px;
-        height:450px;
-        width:450px;
-      }
-      .video img{
-        height:450px;
-        width:450px;
-      }
-      .empty{
-        margin-left:150px;
-        margin-top:-50px;
-      }
-      .card1{
-        margin-left:50px;
-        margin-top:50px;
-        width:100%;
-      }
-      .card1 table{
-        margin-left:10px;
-        margin-top:10px;
-        width:100%;
-      }
-      .card2{
-        margin-left:100px;
-        margin-top:60px;
-        width:500px;
-      }
-      table {
-  border-collapse: collapse;
-  width: 100%;
-  max-width: 800px;
-  margin: auto;
-  min-height:300px;
-  height:auto;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
 }
 
-td, th {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-td{
-  text-transform:capitalize;
-}
-tr:nth-child(even) {
-  background-color: #f2f2f2;
+.div {
+    margin-top: 0;
+    height: 170px;
+    width: 100%;
+    background-color: #f0f0f0;
 }
 
-tr:hover {
-  background-color: #ddd;
+.div h3 {
+    padding-top: 100px;
+    margin-left: 100px;
+    font-size: 30px;
+    font-weight: 600;
 }
-td {
-  border-top: none;
-  border-right: none;
-  border-left: none;
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
+
+.cart {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Main content on the left, price details on the right */
+    gap: 20px;
+    padding: 20px;
 }
-table img {
-  height: 100px;
-  width: 100px;
+
+.video {
+    margin-left: 500px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    height: 450px;
+    width: 450px;
+}
+
+.video img {
+    height: 450px;
+    width: 450px;
+}
+
+.empty {
+    margin-left: 150px;
+    margin-top: -50px;
+    font-size: 24px;
+}
+
+.card1 {
+    margin: 0 auto;
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+.card1 table {
+    width: 100%;
+    margin: 10px 0;
+    border-collapse: collapse;
+}
+
+/* Main content table */
+table {
+    width: 100%;
+    margin-top: 50px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
 
 table th {
-  background-color: #333;
-  color: #fff;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-transform: uppercase;
 }
 
-
-
-button {
-  background-color: #4CAF50;
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
+table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
 }
 
+table img {
+    height: 100px;
+    width: 100px;
+    border-radius: 8px;
+}
 
 .quantity {
-  display: flex;
-  align-items: center;
-  background-color:#991823;
-  width:100px;
-  margin-left:15px;
-  border-radius:10px;
-  height:40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .quantity input {
-  border:none;
-  outline:none;
-  padding: 8px;
-  width: 30px;
-  text-align: center;
-  color:white;
-  background-color:#991823;
-  margin-top:2px;
+    border: none;
+    padding: 8px;
+    width: 40px;
+    text-align: center;
+    background-color: #f0f0f0;
 }
 
 .quantity button {
-  width: 10px;
-  height: 20px;
-  font-size: 20px;
-  line-height: 1;
-  margin-left:0px;
-  border-radius:10px;
-  background-color:#991823;
-  margin-top:-7px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+button {
+    padding: 8px 16px;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
+button:hover {
+    background-color: #555;
+}
+
+h3 {
+    font-size: 24px;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 2px solid #ddd;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#back-shop, #checkout {
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#back-shop {
+    background-color: red;
+    color: white;
+}
+
+#checkout {
+    background-color: black;
+    color: white;
+}
+
+#back-shop:hover, #checkout:hover {
+    background-color: #fc7c7c;
+}
 
 .card {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  margin-top: 20px;
-  overflow: hidden;
-  margin-left:60px;
-  margin-right:40px;
-  line-height:30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
-  background-color: #f5f5f5;
-  font-weight: bold;
-  padding: 8px;
+/* Sidebar for price details */
+.price-details {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+    margin-top: 50px; /* Aligns with the table */
 }
 
-.card-body {
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
+.price-details .card-header {
+    background-color: #f5f5f5;
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
 }
 
-.subtotal,
-.shipping,
+.price-details .card-body {
+    padding: 10px;
+}
+
+.subtotal, .shipping, .total {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.subtotal-label, .shipping-label, .total-label {
+    font-weight: bold;
+}
+
+.subtotal-value, .shipping-value, .total-value {
+    font-weight: bold;
+    color: #333;
+}
+
 .total {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
+    border-top: 2px solid #ddd;
+    padding-top: 15px;
+    
 }
 
-.subtotal-label,
-.shipping-label,
-.total-label {
-  text-transform: uppercase;
+#checkout {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    text-align: center;
+    text-transform: uppercase;
 }
 
-.subtotal-value,
-.shipping-value,
-.total-value {
-  font-weight: bold;
-  text-align: right;
+#checkout:hover {
+    background-color: #555;
 }
 
-#span{
-  text-transform:lowercase;
-  padding-left:5px;
-  color:black;
+.save-icon {
+    font-size: 10px;
+    color: red;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: color 0.3s;
 }
 
-#back-shop{
-  background: red;
-  margin-left:10px;
-  border-radius:5px;
-  font-weight:600;
-  height:45px;
-  padding-left:30px;
-  padding-right:30px;
-  font-size:14px;
-}
-#back-shop:hover{
-  background: #fc7c7c; 
-}
-
-#checkout{
-  background: black;
-  margin-left:230px;
-  border-radius:5px;
-  font-weight:600;
-  height:45px;
-  padding-left:30px;
-  padding-right:30px;
-  font-size:17px;
-  color:white;
-}
-#checkout:hover{
-  background: #fc7c7c;
+.save-icon:hover {
+    color: #333;
 }
     </style>
 </head>
-  <body>
-  <div class="div">
-        <h3>MYCART</h3>
+<body>
+    <div class="div">
+        <h3>MY CART</h3>
     </div>
-    <?php
-  $sql="select tbl_cart.cart_id,tbl_cart.product_id,tbl_cart.quantity,tbl_cart.price,product_dog.name,product_dog.image1 from tbl_cart join product_dog on tbl_cart.product_id=product_dog.product_id where lid='$userid'";
-  $res=mysqli_query($con,$sql);
-  $c=mysqli_num_rows($res);
-  $subtotal=0;
-  $shipping=50;
-  if($c==0)
-  {
-    ?>
 
+    <?php
+    if (mysqli_num_rows($res_dogs) == 0 && mysqli_num_rows($res_pets) == 0) {
+    ?>
     <div class="video">
-    <img  src="cart.gif" alt="error"/>
-                <h3 class="empty">Your Cart is Empty..!!</h3>
+        <img src="cart.gif" alt="error"/>
+        <h3 class="empty">Your Cart is Empty..!!</h3>
     </div>
-   
-      <?php
-  }
-  else{
-  ?>
-  <div class="cart">
-      <div class="card1">
-      <table>
-  <tr>
-    <th>Product Image</th>
-    <th>Product Title</th>
-    <th>Quantity</th>
-    <th>Price</th>
-    <th>Total</th>
-    <th>Remove</th>
-  </tr>
-  <?php while($row=mysqli_fetch_array($res)) {
-    $prototal = $row['price'] * $row['quantity'];
-    $subtotal+=$prototal;
-    $total=$subtotal;
-  $proid=$row['product_id'];
-  ?>
-  <tr>
-    <td><?php echo "<img src='uploads/".$row['image1']."' alt='not found'/>"; ?></td>
-    <td><?php echo $row['name']; ?>
-   
-
-    </td>
-    <td>
-    <div class="quantity">
-    <?php echo "<a  href='minusitem.php?id=",$row['cart_id'],"'>"?>
-    <button class="minus-btn" type="button" name="button" value="-1">-</button>
-  </a>
-
-  <label for="quantity" hidden>Quantity:</label>
-    <input type="number" name="quantity"  value="<?php echo $row['quantity']; ?>" min="1">
-   
-    <?php echo "<a  href='plusitem.php?id=",$row['cart_id'],"'>"?>
-     <button class="plus-btn" type="button" name="button" value="1">+</button>
-  </a>
-    <input type="hidden" id="pro" name="product" value="<?php $row['product_id']; ?>"/>
-  </div>
+    <?php
+    } else {
+    ?>
+    <div class="cart">
+        <!-- Table for Dogs -->
+        <div class="card1">
+            <h3>Products</h3>
+            <table>
+                <tr>
+                    <th>Product Image</th>
+                    <th>Product Title</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Remove</th>
+                </tr>
+                <?php while ($row = mysqli_fetch_array($res_dogs)) {
+                    $prototal = $row['price'] * $row['quantity'];
+                    $subtotal_dogs += $prototal;
+                ?>
+                <tr>
+                    <td><img src='uploads/<?php echo $row['product_image']; ?>' alt='not found'/></td>
+                    <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                    <td>
+                    <div class="quantity">
+        <a href='minusitem.php?id=<?php echo $row['cart_id']; ?>'><button class="minus-btn" type="button">-</button></a>
+        <input type="number" name="quantity" value="<?php echo $row['quantity']; ?>" min="1" max="<?php echo $row['quantity']; ?>" data-original-quantity="<?php echo $row['quantity']; ?>">
+        <a href='plusitem.php?id=<?php echo $row['cart_id']; ?>'><button class="plus-btn" type="button">+</button></a>
+    </div>
+                    </td>
+                    <td><?php echo $row['price']; ?></td>
+                    <td><?php echo $prototal; ?></td>
+                    <td>
+    <a href='removeitem.php?id=<?php echo $row['cart_id']; ?>'><button>Remove</button></a>
+    <a href='#' onclick="saveForLater(<?php echo $row['cart_id']; ?>, '<?php echo $row['type']; ?>', <?php echo $row['product_id']; ?>, <?php echo $row['price']; ?>, <?php echo $row['quantity']; ?>)">
+        <i class="fas fa-bookmark save-icon" title="Save for Later">Saveforlater</i>
+    </a>
 </td>
-    <td><?php echo $row['price']; ?></td>
-    <td><?php echo $prototal ?></td>
-    <td><?php echo "<a href='deleteitem.php?id=".$row['cart_id']."'>"?><i class='fa fa-trash-o' style="color:black;font-size:20px;"></i></a></td>
-  </tr>
-  <?php } ?>
-</table>
-<br><br>
-<a href="shops.php"><button type="button" id="back-shop">BACK TO SHOPPING</button></a>
-      </div>
-      <div class="card2">
-        
-        <h3 align="center">PRICE DETAILS</h3>
-      <div class="subtotal-card">
-      <div class="card">
-  <div class="card-header">
-    Subtotal
-  </div>
-  <div class="card-body">
-    <div class="subtotal">
-      <div class="subtotal-label">Subtotal<span id="span">(<?php echo $c." items"; ?>)</span>:</div>
-      <div class="subtotal-value"><i class='fa fa-rupee' ></i> <?php echo $subtotal; ?></div>
-    </div>
+                </tr>
+                <?php } ?>
+                <tr>
+                    <td colspan="4"><strong>Total Amount:</strong></td>
+                    <td><strong><?php echo $subtotal_dogs; ?></strong></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
 
-    <!------------------------------form starts ----------------------------------------- -->
+        <!-- Table for Pets -->
+        <div class="card1">
+            <h3>Pets</h3>
+            <table>
+                <tr>
+                    <th>Product Image</th>
+                    <th>Product Title</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Remove</th>
+                  
+                </tr>
+                <?php while ($row = mysqli_fetch_array($res_pets)) {
+                    $prototal = $row['price'] * $row['quantity'];
+                    $subtotal_pets += $prototal;
+                ?>
+                <tr>
+                    <td><img src='uploads/<?php echo $row['product_image']; ?>' alt='not found'/></td>
+                    <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                    <td>
+                    <div class="quantity">
+            <a href='minusitem.php?id=<?php echo $row['cart_id']; ?>'><button class="minus-btn" type="button">-</button></a>
+            <input type="number" name="quantity" value="<?php echo $row['quantity']; ?>" min="1" max="<?php echo $row['quantity']; ?>" data-original-quantity="<?php echo $row['quantity']; ?>">
+            <a href='plusitem.php?id=<?php echo $row['cart_id']; ?>'><button class="plus-btn" type="button">+</button></a>
+        </div>
+                    </td>
+                    <td><?php echo $row['price']; ?></td>
+                    <td><?php echo $prototal; ?></td>
+                    <td>
+    <a href='removeitem.php?id=<?php echo $row['cart_id']; ?>'><button>Remove</button></a>
+    <a href='#' onclick="saveForLater(<?php echo $row['cart_id']; ?>, '<?php echo $row['type']; ?>', <?php echo $row['product_id']; ?>, <?php echo $row['price']; ?>, <?php echo $row['quantity']; ?>)">
+        <i class="fas fa-+bookmark save-icon" title="Save for Later">Saveforlater</i>
+    </a>
+</td>
+                </tr>
+                <?php } ?>
+                <tr>
+                    <td colspan="4"><strong>Total Amount:</strong></td>
+                    <td><strong><?php echo $subtotal_pets; ?></strong></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
 
-    <form method="post" action="checkout.php">
-    <?php
-    if($subtotal<500)
-    {
-      ?>
-      <div class="shipping">
-      <div class="shipping-label">shipping fee:</div>
-      <div class="shipping-value"><i class='fa fa-rupee' ></i><span id="sub"  style="color:black;"><?php echo $shipping; ?></span></div>
-    </div>
-    
-    <?php
-    
-    $total+=$shipping;
-    
-    
-    ?>
-     <hr>
-    <div class="total">
-      <div class="total-label">Total:</div>
-      <div class="total-value"><i class='fa fa-rupee' ></i> <?php echo $total; ?></div>
+        <!-- Price Details -->
+        <div class="price-details card">
+        <div class="card-header">
+            <h3 align="center">PRICE DETAILS</h3>
+            </div>
+          
+                    
+                    <div class="card-body">
+                        <div class="subtotal">
+                            <div class="subtotal-label">Subtotal (products):</div>
+                            <div class="subtotal-value"><i class='fa fa-rupee'></i> <?php echo $subtotal_dogs; ?></div>
+                        </div>
+                        <div class="subtotal">
+                            <div class="subtotal-label">Subtotal (Pets):</div>
+                            <div class="subtotal-value"><i class='fa fa-rupee'></i> <?php echo $subtotal_pets; ?></div>
+                        </div>
+
+                        <?php
+                        $total = $subtotal_dogs + $subtotal_pets;
+                        if ($total < 500) {
+                        ?>
+                        <div class="shipping">
+                            <div class="shipping-label">Shipping Fee:</div>
+                            <div class="shipping-value"><i class='fa fa-rupee'></i> <?php echo $shipping; ?></div>
+                        </div>
+                        <?php
+                            $total += $shipping;
+                        }
+                        ?>
+
+                        <hr>
+                        <div class="total">
+                            <div class="total-label">Total:</div>
+                            <div class="total-value"><i class='fa fa-rupee'></i> <?php echo $total; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <br><br><br>
+                <form method="post" action="place_order.php">
+                    <input type="hidden" name="total" value="<?php echo $total; ?>"/>
+                    <?php
+                    $cart_ids = [];
+                    mysqli_data_seek($res_dogs, 0); // Reset pointer for dogs
+                    while ($row = mysqli_fetch_array($res_dogs)) {
+                        $cart_ids[] = $row['cart_id'];
+                    }
+                    mysqli_data_seek($res_pets, 0); // Reset pointer for pets
+                    while ($row = mysqli_fetch_array($res_pets)) {
+                        $cart_ids[] = $row['cart_id'];
+                    }
+                    echo '<input type="hidden" name="cart_ids" value="' . implode(',', $cart_ids) . '"/>';
+                    ?>
+                    <button type="submit" name='checkout' id='checkout'>Place Order</button>
+                </form>
+            </div>
+        </div>
     </div>
     <?php
     }
-   else{
-     ?>
-   
-   <hr>
-    <div class="total">
-      <div class="total-label">Total:</div>
-      <div class="total-value"><i class='fa fa-rupee' ></i> <?php echo $total; ?></div>
-
-    </div>
-    <?php
-   }
-   
     ?>
-  </div>
-  
-</div>
-<br><br><br>
 
-<input type="hidden" name="total" value="<?php echo $total; ?>"/>
-<button  type="submit" name='checkout' id='checkout'>Place Order</button>
+    <script>
+        // Quantity plus and minus buttons functionality
+        <script>
+    //Quantity plus and minus buttons functionality
+    var minusButton = document.querySelectorAll('.minus-btn');
+    var plusButton = document.querySelectorAll('.plus-btn');
+    var quantityInput = document.querySelectorAll('.quantity input');
 
-</form>
+    for (var i = 0; i < minusButton.length; i++) {
+        minusButton[i].addEventListener('click', function() {
+            var input = this.parentElement.querySelector('input');
+            var value = parseInt(input.value);
+            if (value > 1) {
+                input.value = value - 1;
+            }
+        });
+    }
 
-      </div>
-      </div>
-    </div>
-  <?php
-  }
-    
-?>
-     
+    for (var i = 0; i < plusButton.length; i++) {
+        plusButton[i].addEventListener('click', function() {
+            var input = this.parentElement.querySelector('input');
+            var value = parseInt(input.value);
+            var maxQuantity = parseInt(input.getAttribute('data-original-quantity')); // Get the original quantity from the data attribute
+
+            if (value < maxQuantity) {
+                input.value = value + 1;
+            } else {
+                alert("You cannot exceed the available quantity of " + maxQuantity + ".");
+            }
+        });
+    }
+</script>
 <script>
-// Quantity plus and minus buttons functionality
-var minusButton = document.querySelectorAll('.minus-btn');
-var plusButton = document.querySelectorAll('.plus-btn');
-var quantityInput = document.querySelectorAll('.quantity input');
-
-for (var i = 0; i < minusButton.length; i++) {
-  minusButton[i].addEventListener('click', function() {
-    var input = this.parentElement.querySelector('input');
-    var value = parseInt(input.value);
-    if (value > 1) {
-      input.value = value - 1;
-    }
-  });
-}
-
-for (var i = 0; i < plusButton.length; i++) {
-  plusButton[i].addEventListener('click', function() {
-    var input = this.parentElement.querySelector('input');
-    var value = parseInt(input.value);
-    input.value = value + 1;
-  });
+function saveForLater(cartId, type, productId, price, quantity) {
+    $.ajax({
+        url: 'save_for_later.php',
+        type: 'POST',
+        data: {
+            cart_id: cartId,
+            type: type,
+            product_id: productId,
+            price: price,
+            quantity: quantity
+        },
+        dataType: 'json',
+        success: function(response) {
+            console.log(response); // For debugging
+            if(response && response.success) {
+                alert('Item saved for later');
+                location.reload();
+            } else {
+                alert(response.message || 'Failed to save item');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText); // For debugging
+            alert('Error occurred while saving item');
+        }
+    });
 }
 </script>
-
-
-<?php
-include("footer.php");
-
-if(isset($_POST['checkout'])) {
-  
-    if(isset($_SESSION['uid'])) {
-        $userid=$_SESSION['uid'];
-        $cart_total=$_POST['total'];
-        require('connection.php');
-        $sql="insert into tbl_order(lid,total,date)values('$userid','$cart_total',NOW())";
-        $res1=mysqli_query($con,$sql);
-        if($res1) {
-          $order_id = mysqli_insert_id($con);
-
-        }
-      }
-      else{
-        header("location:login.php");
-        exit();
-      }
-}
-?>
+    </script>
 </body>
 </html>

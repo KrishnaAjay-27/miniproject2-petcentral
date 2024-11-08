@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "mineral-hangar-436410-u6",
+  "private_key_id": "11e97e2febf30fbb374f0e6494e01bceb4e6fa9f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDE0ddcI3TBKwyD\nJb5oS6lVCdj2JKDrle3zS+bqikDUoiP/NcHRV1Pz7AeHTnXtSoGkkLOthRLTTlw8\notmEXVHMf4J+yaL9qK3nbMx7O91+3gbNHaw/DvNeNf+iOC1cdpnHl6FT+0OLq/uC\n9U3qT0AkO+GSDy3ZpFml0ByxqDgVqY8M2KA8iNOkybjGSz3C86kujKy9AquLE413\nk4xztr3PcewmEdBQxfbRhV/WJlnoiW6yzI8J8RvyPWvUAOQcwp4JetgSuPSij4s6\n+HQPJxewpMa5INYsEvgou2wpM7QI6M8R7ns1Bfe5EiJJ8YP3/W03V/6NUCWb4zIK\nfJlLznszAgMBAAECggEAX9sLFfa2sDV1HJJPT6A50g6/ufFQ5ivY/bsjtWqr9GMb\nQPo/cOMlIhD8Aav2xyCYTzuiJoo/BuaNCYMOiOaiJgSb23/8f6mdOK7GT+ZyE42y\npkcjUnrHkESgQbM2dGfWsVxp1+rxlJ6oGbm6vrjmNj9rtqTp4aundZgLwYJ5/iIB\nidVLP0msimMqfgAkgPx+Hv2/57vYHDG0B9zVA0mOnfiS00lytspfBldOwEtL/xA9\n19ezue3WvRIDcOHyf07sxVp9RaqZ+BTDi44guBET/JRDE+ImfJ9ybdFZuODM5TJS\nA67kglVZHSojq9BdWYFD21xXtAL1hywiCWC4r9vUoQKBgQDqxtNllpaVeG33Wrjj\n1zOB1/lTo7ynEZalmeIytIs5e8O9RIm1MNGGZYJjAhb8Yi+Fhl3ZrZlilqw99Yf/\nCpnfePnyAu3Ve+7zY0ZU46ovqYm2RT+UQ2QeE/b1z9dqxNqaefQiRL+i4s79W3Q8\nsnRRlJS2oSa4M1Ol4FRYegbnywKBgQDWnJ6jNyzPcOeH2vjZkSR3QlUue01+b02l\nlm5nbcn0poXt+tOH/m+vN5YwJaUK5OlgDbOLVgKKWZaIZdkZKZFZCb+EpI9GdlBL\nWyOkeEta3mhOELxsknJSAqSLUB3bJMgYmhaLz6X09IWUbwbF/1WzikAasyV8Ji9z\nnBM5COy9OQKBgHhoDgTczU/NGsCwI4CeXskpxbISmG8qgxNdL3gHxhtuEP4hh2qI\npfyCVPOIH9fCV1LojXtVIARC+AUyxlOT0USeG7n1rJo/XFYwxOJGfILDNWBodWoJ\ngfA3FwIMXRNh8CcngoCMt6fHIJcpbxyt/R/Vzss3LM9ta2n3+eoCc0YvAoGASsRl\nwBcI1XxQLVRsPeADBElnw7nRVasRMg8mh4IISeN55V7tMwPBhRmoiT2UMidt5rjf\nRDvCxtBPUVWqPMnuiUaMInnyMGonrxkhYbtHBXFWhVvvSSP8D/Y7vQ08WYyG6YtF\nL5A4EQ7fOsczZOd/w/z2OFcRSB9FiNFnIQeq8oECgYEAweZH0rEfd5qCty0XHZ2k\ndR2Y9XeX7pJ8aejSvh6wuTHtZ55xRoclhNAWScNI0dSdtkSX9C7B937ry1bJBJAv\nm6Ch4/hSHRzsnE/PDm3sxbm1QgOAyJ6cN6zylypRwE7X0NScmAyzkRwvk30oJT05\nmf011tqHc+tWKByjAmPzGKc=\n-----END PRIVATE KEY-----\n",
+  "client_email": "image-processing-822@mineral-hangar-436410-u6.iam.gserviceaccount.com",
+  "client_id": "113627506169122260593",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/image-processing-822%40mineral-hangar-436410-u6.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
