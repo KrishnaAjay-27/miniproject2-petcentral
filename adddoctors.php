@@ -12,7 +12,7 @@ use PHPMailer\PHPMailer\SMTP;
 
 require 'vendor/autoload.php'; // Adjust the path if needed
 
-function sendVerificationEmail($email, $name, $password, $supplier_code) {
+function sendVerificationEmail($email, $name, $password, $doctor_code) {
     $mail = new PHPMailer(true);
 
     try {
@@ -37,7 +37,7 @@ function sendVerificationEmail($email, $name, $password, $supplier_code) {
             'Thank you for registering with us. Here are your registration details:<br><br>' .
             'Email ID: <b>' . $email . '</b><br>' .
             'Password: <b>' . $password . '</b><br>' . // Avoid sending plain passwords in production
-            'Supplier Code: <b>' . $supplier_code . '</b><br><br>' .
+            'Doctor Code: <b>' . $doctor_code . '</b><br><br>' .
             'Best regards,<br>Your PetCentral';
 
         $mail->send();
@@ -48,7 +48,7 @@ function sendVerificationEmail($email, $name, $password, $supplier_code) {
 }
 
 // Establish database connection
-$con = mysqli_connect("localhost", "root", "", "project");
+
 if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
@@ -70,33 +70,7 @@ if (!isset($_SESSION['uid'])) {
     exit();
 }
 
-// if (isset($_GET['subid'])) {
-//     $subid = intval($_GET['subid']);
 
-//     // Fetch the subcategory details
-//     $subcatQuery = "SELECT * FROM subcategory WHERE subid = $subid";
-//     $subcatResult = mysqli_query($con, $subcatQuery);
-//     $subcategory = mysqli_fetch_assoc($subcatResult);
-
-//     // Fetch all categories
-//     $categoriesQuery = "SELECT cid, name FROM category";
-//     $categoriesResult = mysqli_query($con, $categoriesQuery);
-// }
-
-// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-//     $name = mysqli_real_escape_string($con, $_POST['name']);
-//     $cid = intval($_POST['category_id']);
-
-//     // Update the subcategory
-//     $updateQuery = "UPDATE subcategory SET name = '$name', cid = $cid WHERE subid = $subid";
-    
-//     if (mysqli_query($con, $updateQuery)) {
-//         header('Location: viewsubcategory.php');
-//         exit();
-//     } else {
-//         die("Error: " . mysqli_error($con));
-//     }
-// }
 
 mysqli_close($con);
 ?>
@@ -348,8 +322,8 @@ mysqli_close($con);
    
     <div class="container">
        
-        <h2>Add The Suppliers</h2>
-        <form id="form" method="POST" action="addsuppliers.php" enctype="multipart/form-data">
+        <h2>Add The Doctor</h2>
+        <form id="form" method="POST" action="adddoctors.php" enctype="multipart/form-data">
             <div class="input-box">
                 <input type="text" placeholder="Enter your Name" name="name" id="p1" required />
                 <p id="error1" class="error">Enter Valid Name</p>
@@ -449,12 +423,12 @@ if (isset($_POST['submit'])) {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $password = $_POST['password'];
-    $supplier_code = generateUniqueSupplierCode();
+    $doctor_code = generateUniqueSupplierCode();
 
     $con = mysqli_connect("localhost", "root", "", "project");
 
     // Check if email already exists
-    $email_check_query = "SELECT * FROM s_registration WHERE email='$email' LIMIT 1";
+    $email_check_query = "SELECT * FROM d_registration WHERE email='$email' LIMIT 1";
     $result = mysqli_query($con, $email_check_query);
     $user = mysqli_fetch_assoc($result);
 
@@ -464,7 +438,7 @@ if (isset($_POST['submit'])) {
         }
     } else {
         // Insert into login table
-        $query = "INSERT INTO login (email, password, u_type) VALUES ('$email', '$password', 2)";
+        $query = "INSERT INTO login (email, password, u_type) VALUES ('$email', '$password', 3)";
         $re = mysqli_query($con, $query);
 
         if ($re) {
@@ -472,11 +446,11 @@ if (isset($_POST['submit'])) {
             $lid = mysqli_insert_id($con);
 
             // Insert into s_registration table
-            $query = "INSERT INTO s_registration (lid, name, email, u_type, supplier_code) VALUES ('$lid', '$name', '$email', 2, '$supplier_code')";
+            $query = "INSERT INTO d_registration (lid, name, email, u_type, doctor_code) VALUES ('$lid', '$name', '$email', 3, '$doctor_code')";
             $re = mysqli_query($con, $query);
 
             if ($re) {
-                sendVerificationEmail($email, $name, $password, $supplier_code);
+                sendVerificationEmail($email, $name, $password, $doctor_code);
                 echo "<script>alert('Registration successful. A verification email has been sent.');</script>";
             } else {
                 echo "<script>alert('Failed to register.');</script>";

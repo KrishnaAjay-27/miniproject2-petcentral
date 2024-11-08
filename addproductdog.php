@@ -1,5 +1,8 @@
 <?php
 session_start();
+require('connection.php');
+
+
 
 // Check if user is logged in
 if (!isset($_SESSION['uid'])) {
@@ -8,7 +11,7 @@ if (!isset($_SESSION['uid'])) {
 }
 
 // Establish database connection
-$con = mysqli_connect("localhost", "root", "", "project");
+
 if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
@@ -38,6 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cid = intval($_POST['cid']);
     $subid = intval($_POST['subid']);
 
+    // Check if product already exists for this supplier
+    if (productExists($con, $product_name, $brand, $species, $supplier_id)) {
+        echo json_encode(['success' => false, 'message' => 'A product with this name, brand, and species already exists for your account.']);
+        mysqli_close($con);
+        exit();
+    }
+
     // Handle image upload
     $image1 = '';
     if (isset($_FILES['image1']) && $_FILES['image1']['error'] === UPLOAD_ERR_OK) {
@@ -57,13 +67,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image2 = $imageName;
     }
     
-    // Insert product
-    $insertProductQuery = "
-        INSERT INTO product_dog (name, description, image1, image2, brand, species, sid, cid, subid)
-        VALUES ('$product_name', '$description', '$image1', '$image2', '$brand', '$species', $supplier_id, $cid, $subid)
-    ";
-    if (mysqli_query($con, $insertProductQuery)) {
+    // Start transaction
+    mysqli_begin_transaction($con);
+
+    try {
+        // Insert product
+        $insertProductQuery = "
+            INSERT INTO product_dog (name, description, image1, image2, sid, cid, subid)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ";
+        $stmt = mysqli_prepare($con, $insertProductQuery);
+        mysqli_stmt_bind_param($stmt, "sssssii", $product_name, $description, $image1, $image2, $supplier_id, $cid, $subid);
+        mysqli_stmt_execute($stmt);
         $product_id = mysqli_insert_id($con);
+
+        // Insert brand and species into tblpro
+        $insertTblProQuery = "
+            INSERT INTO tblpro (product_id, brand, species)
+            VALUES (?, ?, ?)
+        ";
+        $stmt = mysqli_prepare($con, $insertTblProQuery);
+        mysqli_stmt_bind_param($stmt, "iss", $product_id, $brand, $species);
+        mysqli_stmt_execute($stmt);
 
         // Insert product variants
         $sizes = $_POST['size'];
@@ -76,18 +101,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $insertVariantQuery = "
                 INSERT INTO product_variants (product_id, size, quantity, price)
-                VALUES ($product_id, '$size', $quantity, $price)
+                VALUES (?, ?, ?, ?)
             ";
-            mysqli_query($con, $insertVariantQuery);
+            $stmt = mysqli_prepare($con, $insertVariantQuery);
+            mysqli_stmt_bind_param($stmt, "isid", $product_id, $size, $quantity, $price);
+            mysqli_stmt_execute($stmt);
         }
 
-        echo "Product added successfully.";
-    } else {
-        echo "Error adding product: " . mysqli_error($con);
+        // Commit transaction
+        mysqli_commit($con);
+
+        echo json_encode(['success' => true, 'message' => 'Product added successfully.']);
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        mysqli_rollback($con);
+        echo json_encode(['success' => false, 'message' => 'Error adding product: ' . $e->getMessage()]);
     }
 
     mysqli_close($con);
-    exit(); // Ensure the script stops execution after form submission
+    exit();
 }
 
 // Handle AJAX request for subcategories
@@ -105,7 +137,20 @@ if (isset($_GET['cid'])) {
 
     echo json_encode($subcategories);
     mysqli_close($con);
-    exit(); // Ensure the script stops execution after AJAX request
+    exit();
+}
+
+// Add this function after the database connection and before the form submission handling
+function productExists($con, $product_name, $brand, $species, $supplier_id) {
+    $query = "SELECT COUNT(*) as count FROM product_dog pd
+              JOIN tblpro tp ON pd.product_id = tp.product_id
+              WHERE pd.name = ? AND tp.brand = ? AND tp.species = ? AND pd.sid = ?";
+    $stmt = mysqli_prepare($con, $query);
+    mysqli_stmt_bind_param($stmt, "sssi", $product_name, $brand, $species, $supplier_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    return $row['count'] > 0;
 }
 ?>
 
@@ -116,22 +161,52 @@ if (isset($_GET['cid'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Product</title>
     <style> 
-        body {
+         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
+            display: flex;
         }
+        .sidebar {
+            background-color: #003366;
+            color: white;
+            width: 250px;
+            height: 100vh;
+            padding-top: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .container {
+        margin-left: 570px; /* Space for the sidebar */
+        margin-right: auto; /* Centering */
+        margin-top: 20px; /* Optional: Add some top margin */
+        padding: 100px;
+        max-width: 900px; /* Set a max width */
+        background: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px; /* Optional: Add rounded corners */
+    }
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 20px;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            overflow: auto;
-        }
+        
         form {
             background: #fff;
             padding: 20px;
@@ -198,25 +273,58 @@ if (isset($_GET['cid'])) {
             font-size: 20px;
             vertical-align: middle;
         }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        .logout-btn {
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            font-weight: bold;
+            padding: 10px 20px;
+            background-color: #cc0000;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #ff3333;
+        }
     </style>
 </head>
 <body>
+<div class="sidebar">
+      
+      <a href="supplierindex.php">Dashboard</a>
+      <a href="logout.php" class="logout-btn">Logout</a>
+  </div>
     <div class="container">
-        <a href="supplierindex.php" class="back-link">Back</a>
+     
         <h1>Add Product</h1>
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" id="addProductForm">
             <label for="product_name">Product Name:</label>
             <input type="text" id="product_name" name="product_name" required>
+            <p id="product_name_error" class="error-message">Only alphabets and spaces are allowed</p>
 
             <label for="description">Description:</label>
             <textarea id="description" name="description" required></textarea>
 
             <label for="brand">Brand Name:</label>
             <input type="text" id="brand" name="brand" required>
+            <p id="brand_error" class="error-message">Only alphabets and numbers are allowed</p>
 
             <label for="species">Species:</label>
             <select id="species" name="species" required>
-                <option value="dog" selected>Dog</option>
+                <option value="dog food" selected>Dog Food</option>
+                <option value="cat food">Cat food</option>
+                <option value="dog Accessories" selected>Dog Accessories</option>
+                <option value="cat Accessories">Cat Accessories</option>
+                <option value="dog grooming" selected>Dog grooming</option>
+                <option value="cat grooming">Cat grooming</option>
+
             </select>
 
             <label for="cid">Category:</label>
@@ -231,7 +339,7 @@ if (isset($_GET['cid'])) {
                 <!-- Subcategories will be populated based on selected category -->
             </select>
 
-            <label for="image1">Product Image:</label>
+            <label for="image1">Product Image1:</label>
             <input type="file" id="image1" name="image1" accept="image/*">
             <label for="image2">Product Image 2:</label>
             <input type="file" id="image2" name="image2" accept="image/*">
@@ -241,13 +349,16 @@ if (isset($_GET['cid'])) {
                 <div id="variants-container">
                     <div class="variant-entry">
                         <label for="size[]">Size:</label>
-                        <input type="text" name="size[]" required>
+                        <input type="text" name="size[]" required class="size-input">
+                        <p class="error-message size-error">Special characters are not allowed</p>
 
                         <label for="quantity[]">Quantity:</label>
-                        <input type="number" name="quantity[]" required>
+                        <input type="number" name="quantity[]" required class="quantity-input">
+                        <p class="error-message quantity-error">Only numbers are allowed</p>
 
                         <label for="price[]">Price:</label>
-                        <input type="number" name="price[]" step="0.01" required>
+                        <input type="number" name="price[]" step="0.01" required class="price-input">
+                        <p class="error-message price-error">Only numbers are allowed</p>
                     </div>
                 </div>
                 <button type="button" class="add-variant-button" onclick="addVariant()">Add Another Variant</button>
@@ -257,6 +368,7 @@ if (isset($_GET['cid'])) {
         </form>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function fetchSubcategories() {
             const cid = document.getElementById('cid').value;
@@ -281,16 +393,130 @@ if (isset($_GET['cid'])) {
             newVariant.classList.add('variant-entry');
             newVariant.innerHTML = `
                 <label for="size[]">Size:</label>
-                <input type="text" name="size[]" required>
+                <input type="text" name="size[]" required class="size-input">
+                <p class="error-message size-error">Special characters are not allowed</p>
 
                 <label for="quantity[]">Quantity:</label>
-                <input type="number" name="quantity[]" required>
+                <input type="number" name="quantity[]" required class="quantity-input">
+                <p class="error-message quantity-error">Only numbers are allowed</p>
 
                 <label for="price[]">Price:</label>
-                <input type="number" name="price[]" step="0.01" required>
+                <input type="number" name="price[]" step="0.01" required class="price-input">
+                <p class="error-message price-error">Only numbers are allowed</p>
             `;
             container.appendChild(newVariant);
+            addValidationListeners(newVariant);
         }
+
+        function addValidationListeners(element) {
+            const sizeInputs = element.querySelectorAll('.size-input');
+            const quantityInputs = element.querySelectorAll('.quantity-input');
+            const priceInputs = element.querySelectorAll('.price-input');
+
+            sizeInputs.forEach(input => input.addEventListener('input', validateSize));
+            quantityInputs.forEach(input => input.addEventListener('input', validateQuantity));
+            priceInputs.forEach(input => input.addEventListener('input', validatePrice));
+        }
+
+        function validateProductName() {
+            const input = document.getElementById('product_name');
+            const error = document.getElementById('product_name_error');
+            const regex = /^[A-Za-z\s]+/;
+
+            if (!regex.test(input.value)) {
+                error.style.display = 'block';
+            } else {
+                error.style.display = 'none';
+            }
+        }
+
+        function validateBrand() {
+            const input = document.getElementById('brand');
+            const error = document.getElementById('brand_error');
+            const regex = /^[A-Za-z0-9]+$/;
+
+            if (!regex.test(input.value)) {
+                error.style.display = 'block';
+            } else {
+                error.style.display = 'none';
+            }
+        }
+
+        function validateSize(event) {
+            const input = event.target;
+            const error = input.nextElementSibling;
+            const regex = /^[A-Za-z0-9\s]+/;
+
+            if (!regex.test(input.value)) {
+                error.style.display = 'block';
+            } else {
+                error.style.display = 'none';
+            }
+        }
+
+        function validateQuantity(event) {
+            const input = event.target;
+            const error = input.nextElementSibling;
+            const regex = /^\d+$/;
+
+            if (!regex.test(input.value)) {
+                error.style.display = 'block';
+            } else {
+                error.style.display = 'none';
+            }
+        }
+
+        function validatePrice(event) {
+            const input = event.target;
+            const error = input.nextElementSibling;
+            const regex = /^\d+(\.\d{1,2})?$/;
+
+            if (!regex.test(input.value)) {
+                error.style.display = 'block';
+            } else {
+                error.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const productNameInput = document.getElementById('product_name');
+            const brandInput = document.getElementById('brand');
+
+            if (productNameInput) {
+                productNameInput.addEventListener('input', validateProductName);
+            }
+            if (brandInput) {
+                brandInput.addEventListener('input', validateBrand);
+            }
+
+            addValidationListeners(document);
+        });
+
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Perform client-side validation here
+            // ...
+
+            // If validation passes, submit the form
+            fetch('addproductdog.php', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = 'supplierindex.php'; // Redirect to supplier index page
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the product.');
+            });
+        });
     </script>
 </body>
 </html>
