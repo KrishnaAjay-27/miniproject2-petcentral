@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+require('connection.php');
 // Check if product_id is set in the query string
 if (!isset($_GET['product_id'])) {
     echo "No product selected.";
@@ -10,7 +10,6 @@ if (!isset($_GET['product_id'])) {
 $product_id = $_GET['product_id'];
 
 // Establish database connection
-$con = mysqli_connect("localhost", "root", "", "project");
 
 if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
