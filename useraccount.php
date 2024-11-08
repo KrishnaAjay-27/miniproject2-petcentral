@@ -1,6 +1,6 @@
 <?php
 include("header.php");
-include("goback.php");
+
 require('connection.php');
 if (isset($_SESSION['uid'])) {
     $userid = $_SESSION['uid'];
@@ -193,10 +193,13 @@ if (isset($_SESSION['uid'])) {
             <a href="userdashboard.php"><button>DASHBOARD</button></a>
             <a href="profile.php"><button>PROFILE</button></a>
             <a href="editprofile.php"><button>EDIT PROFILE</button></a>
-            <a href="userpass.php"><button>PASSWORD</button></a>
+            <a href="userpassword.php"><button>PASSWORD</button></a>
             <a href="myorders.php"><button>MY ORDERS</button></a>
             <a href="mycart.php"><button>MY CART</button></a>
+            <a href="get_payment_details.php"><button>MY PAYMENT</button></a>
+          
             <a href="mywishlist.php"><button>MY WISHLIST</button></a>
+            <a href="view_user_chat.php"><button>CHAT REPLY</button></a>
             <a href="logout.php"><button>LOGOUT</button></a>
         </div>
         

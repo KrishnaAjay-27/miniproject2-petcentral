@@ -114,29 +114,31 @@
    <div class="categories">
       <div class="category">
          <img src="fooddog.jpg" alt="Pet Food">
-         <h3>Premium Pet Food</h3>
+         <h3>Premium Pet Food  For Dog and Cat</h3>
          <p>Healthy and nutritious meals for your pets</p>
-         <button class="shop-button">Shop Now</button>
+         
       </div>
       <div class="category">
          <img src="acc.jpg" alt="Pet Accessories">
-         <h3>Pet Accessories</h3>
+         <h3>Pet Accessories For DoG and cat</h3>
          <p>Find the best gear for your pets</p>
-         <button class="shop-button">Shop Now</button>
+         
       </div>
       <div class="category">
          <img src="gromming.jpg" alt="Pet Grooming">
-         <h3>Pet Grooming Essentials</h3>
+         <h3>Pet Grooming Essentials For Dog and Cat </h3>
          <p>Everything you need for pet grooming</p>
-         <button class="shop-button">Shop Now</button>
+         
       </div>
       <div class="category">
          <img src="pets.jpg" alt="Pets">
          <h3>Pets</h3>
          <p>Cats And Dogs to Buy</p>
-         <button class="shop-button">Shop Now</button>
+       
       </div>
    </div>
+
+   <!--  -->
 </body>
 </html>
 <?php include("footer.php"); ?>
