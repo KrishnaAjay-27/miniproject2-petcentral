@@ -1,12 +1,12 @@
 <?php
 session_start();
+require('connection.php');
 if (!isset($_SESSION['uid'])) {
     header('Location: login.php');
     exit();
 }
 
-// Establish database connection
-$con = mysqli_connect("localhost", "root", "", "project");
+
 if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
@@ -21,142 +21,158 @@ if ($result) {
     $supp = mysqli_fetch_assoc($result);
     $suppliers = $supp ? $supp['name'] : 'Supplier'; // Default name if no record found
 } else {
-    echo "Error: " . mysqli_error($con); // Output the error for debugging
     $suppliers = 'Supplier'; // Default name in case of query failure
 }
 
 // Close the database connection
 mysqli_close($con);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suppliers</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Supplier Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
             background-color: #f4f4f4;
+            display: flex;
         }
         .sidebar {
+            background-color: #003366;
+            color: white;
             width: 250px;
-            background-color: #2c3e50;
-            color: white;
             height: 100vh;
+            padding-top: 20px;
             position: fixed;
-            top: 0;
             left: 0;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
-            transition: width 0.3s;
-        }
-        .sidebar .admin-info {
-            margin-bottom: 30px;
-        }
-        .sidebar .admin-info p {
-            margin: 0;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .sidebar a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            margin: 5px 0;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .sidebar a:hover {
-            background-color: #34495e;
-            color: #ecf0f1;
-        }
-        .main-content {
-            margin-left: 270px;
-            padding: 20px;
-            width: calc(100% - 270px);
-            min-height: 100vh;
-            background-color: #fff;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        .header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            position: sticky;
             top: 0;
+            overflow-y: auto;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
         }
-        .header .logo {
+        .sidebar h1 {
+            margin: 0;
+            padding-bottom: 10px;
             font-size: 24px;
-            font-weight: bold;
-            text-decoration: none;
-            color: white;
+            color: white; /* Keep "Welcome" in white */
         }
-        .header .logout-btn {
-            background-color: #e74c3c;
+        .sidebar h2 {
+            font-size: 18px;
+            font-weight: normal;
+            margin: 5px 0 20px;
+            color: #cce0ff;
+        }
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+        }
+        .nav-links a {
+            color: white;
+            padding: 15px 20px;
+            text-decoration: none;
+            width: 100%;
+            text-align: center;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        .nav-links a:hover {
+            background-color: #004080;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .profile-btn {
+            background-color: transparent;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 14px;
-            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+        }
+        .profile-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #004080;
+            min-width: 150px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+        .profile-dropdown-content a {
+            color: white;
+            padding: 12px 16px;
             text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+        .profile-dropdown-content a:hover {
+            background-color: #0059b3;
+        }
+        .profile-dropdown:hover .profile-dropdown-content {
+            display: block;
+        }
+        .logout-btn {
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            font-weight: bold;
+            padding: 10px 20px;
+            background-color: #cc0000;
+            border-radius: 4px;
             transition: background-color 0.3s;
         }
-        .header .logout-btn:hover {
-            background-color: #c0392b;
-        }
-       
-        .user-count-box {
-            background-color: #f1c40f;
-            color: black;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            position: absolute;
-            left: 20px;
-            top: 200px;
-            max-width: 200px;
+        .logout-btn:hover {
+            background-color: #ff3333;
         }
     </style>
 </head>
 <body>
+
     <div class="sidebar">
-        <div class="admin-info">
-            <p>Welcome Supplier, <?php echo htmlspecialchars($suppliers); ?></p>
+        <h1>Welcome Supplier</h1>
+        <h2><?php echo htmlspecialchars($suppliers); ?></h2>
+        <div class="nav-links">
+        <a href="supplierindex.php">Dashboard</a>
+        <div class="profile-dropdown">
+            <button class="profile-btn">Profile <i class="fa fa-caret-down"></i></button>
+            <div class="profile-dropdown-content">
+                
+                <a href="edit_profilesupplier.php">Edit Profile</a>
+                <a href="supplierpassword.php">Change Password</a>
+            </div>
         </div>
-        <a href="admindashboard.php">Dashboard</a>
-        <a href="addproductdog.php">Manage Products </a>
+ 
+            <a href="addproductdog.php">Manage Products</a>
+            <a href="addproductpets.php">Manage Pets</a>
+            <a href="viewproduct.php">View Products</a>
+            <a href="viewpetstbl.php">View Pets</a>
+            <a href="view_orders.php">Order history</a>
+            <a href="payment_orders.php">Payment history</a>
+        </div>
+
+        <!-- Profile Dropdown -->
         
-        <a href="addproducts.php">Manage Pets</a>
-        <a href="viewproduct.php">View Products</a>
-        <a href="manage_products.php">View Pets</a>
-        <a href="view_orders.php">View Orders</a>
+
+        <!-- Logout Button -->
+        <a href="logout.php" class="logout-btn">Logout</a>
     </div>
-    <div class="main-content">
-        <div class="header">
-            <a href="dashboard.php" class="logo">Admin Dashboard</a>
-            <a href="logout.php" class="logout-btn">Logout</a>
-        </div>
-        <h1>Dashboard Content</h1>
-        <!-- Add your dashboard content here -->
-    </div>
+
 </body>
 </html>

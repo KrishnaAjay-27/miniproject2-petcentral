@@ -1,5 +1,6 @@
 <?php
 session_start();
+require('connection.php');
 if (!isset($_SESSION['uid'])) {
     header('Location: login.php');
     exit();
@@ -22,7 +23,7 @@ if (isset($_POST['submit'])) {
 
     if (empty($errors)) {
         // Establish database connection
-        $con = mysqli_connect("localhost", "root", "", "project");
+       
         if (!$con) die("Connection failed: " . mysqli_connect_error());
 
         // Sanitize input
