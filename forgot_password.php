@@ -6,6 +6,7 @@ use PHPMailer\PHPMailer\SMTP;
 require 'vendor/autoload.php'; // Adjust the path if needed
 
 session_start();
+require('connection.php');
 
 $con = mysqli_connect("localhost", "root", "", "project");
 

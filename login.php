@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (isset($_GET['message'])) {
+    echo '<div class="message success">' . htmlspecialchars($_GET['message']) . '</div>';
+}
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -12,7 +15,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Prepare and execute the query
-    $query = "SELECT * FROM login WHERE email='$email'";
+    $query = "SELECT l.*, r.verified FROM login l LEFT JOIN registration r ON l.lid = r.lid WHERE l.email='$email'";
     $result = mysqli_query($con, $query);
 
     if (mysqli_num_rows($result) > 0) {
@@ -22,6 +25,12 @@ if (isset($_POST['submit'])) {
         if ($user['status'] == 0) {
             // Check if the password matches
             if ($password === $user['password']) {
+                // For u_type=1, check if the email is verified
+                if ($user['u_type'] == 1 && $user['verified'] != 1) {
+                    echo "<script>alert('Please verify your email before logging in.'); window.location.href='login.php';</script>";
+                    exit();
+                }
+
                 $_SESSION['uid'] = $user['lid'];
                 $_SESSION['u_type'] = $user['u_type'];
 
@@ -44,26 +53,34 @@ if (isset($_POST['submit'])) {
                         }
                         exit();
                     case 2:
-                      $lid = $_SESSION['uid'];
-                      $result = mysqli_query($con, "SELECT * FROM s_registration WHERE lid='$lid'");
-                      $user = mysqli_fetch_assoc($result);
-                      
-                      // Check if any of the fields are empty
-                      
-                      
-
-                      // Check if any required fields are empty
-                      if (empty($user['phone']) || empty($user['address']) || empty($user['state']) || empty($user['district'])) {
-                        header('Location: suppliercomplete_profile.php');
+                        $lid = $_SESSION['uid'];
+                        $result = mysqli_query($con, "SELECT * FROM s_registration WHERE lid='$lid'");
+                        $user = mysqli_fetch_assoc($result);
+                        
+                        // Check if any required fields are empty
+                        if (empty($user['phone']) || empty($user['address']) || empty($user['state']) || empty($user['district'])) {
+                            header('Location: suppliercomplete_profile.php');
+                            exit();
+                        } else {
+                            // Redirect to the supplier index page if all fields are complete
+                            header('Location: supplierindex.php');
+                        }
                         exit();
-                    
-                      } else {
-                          // Redirect to the supplier index page if all fields are complete
-                          header('Location: supplierindex.php');
-                      }
-                      exit();
-              }
-                
+                        case 3:
+                          $lid = $_SESSION['uid'];
+                          $result = mysqli_query($con, "SELECT * FROM d_registration WHERE lid='$lid'");
+                          $user = mysqli_fetch_assoc($result);
+                          
+                          // Check if any required fields are empty
+                          if (empty($user['phone']) || empty($user['address']) || empty($user['state']) || empty($user['district'])|| empty($user['experience'])|| empty($user['Qualification'])|| empty($user['image1'])|| empty($user['certificateimg2'])) {
+                              header('Location: doctorcomplete_profile.php');
+                              exit();
+                          } else {
+                              // Redirect to the supplier index page if all fields are complete
+                              header('Location: doctorindex.php');
+                          }
+                          exit();
+                }
             } else {
                 echo "<script>alert('Email and password do not match.');</script>";
             }

@@ -15,7 +15,7 @@
       display: flex; /* Use flexbox for alignment */
       align-items: center; /* Center items vertically */
       text-decoration: none; /* Remove underline */
-      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
       margin-top: 100px;
       margin-left: 30px;
     }
@@ -44,7 +44,13 @@
 
   <script>
     function goBack() {
-      window.history.back();
+      <?php
+      if(isset($_SERVER['HTTP_REFERER'])) {
+        echo "window.location.href = '" . $_SERVER['HTTP_REFERER'] . "';";
+      } else {
+        echo "window.history.back();";
+      }
+      ?>
     }
   </script>
 </body>

@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 require_once 'vendor/autoload.php';
 require_once 'connection.php'; // Make sure this file contains your database connection
 

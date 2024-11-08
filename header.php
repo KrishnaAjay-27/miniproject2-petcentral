@@ -1,9 +1,19 @@
 <?php
     require('connection.php');
     session_start();
-    
+    $notification_count = 0;
+if (isset($_SESSION['uid'])) {
+    $user_id = $_SESSION['uid'];
+    $count_query = "SELECT COUNT(*) as count FROM notifications WHERE lid = ? AND is_read = 0";
+    $stmt = $con->prepare($count_query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $notification_count = $row['count'];
+    $stmt->close();
+}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,6 +22,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <style>
    /* @import url("https://fonts.googleapis.com/css?family=Josefin+Sans|Mountains+of+Christmas&display=swap"); */
    
@@ -156,16 +167,16 @@
   position: relative;
 }
 
-.parent-menu .submenu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 120px;
-  z-index: 1;
-  height:160px;
-  background:white;
-}
+    .parent-menu .submenu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
 
 .parent-menu:hover .submenu {
   display: block;
@@ -193,6 +204,21 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+.navbar {
+        display: flex;
+        list-style: none;
+    }
+
+    .navbar li {
+        position: relative;
+        margin: 0 15px;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        padding: 10px;
+    }
 
 
 
@@ -210,6 +236,27 @@
   display: block;
 }
 
+.dropdown {
+        display: none;
+        position: absolute;
+        background-color: #444;
+        min-width: 160px;
+        z-index: 1;
+    }
+
+    .navbar li:hover .dropdown {
+        display: block;
+    }
+
+    .dropdown a {
+        padding: 10px;
+        display: block;
+        color: white;
+    }
+    
+    .dropdown a:hover {
+        background-color: #555;
+    }
 
 .submenu2 #buttons:hover {
   background-color: yellowgreen;
@@ -228,6 +275,73 @@
   padding-top:10px;
   transition: background-color 0.3s ease;
 }
+/* Add this to your styles.css */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f8f8; /* Header background color */
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px; /* Space between menu items */
+}
+
+nav a {
+    text-decoration: none;
+    color: #333; /* Link color */
+}
+
+.notification-icon {
+    position: relative; /* Position relative for the count */
+}
+
+.notification-icon a {
+    text-decoration: none;
+    color: #333; /* Icon color */
+    font-size: 24px; /* Icon size */
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px; /* Adjust position */
+    right: -10px; /* Adjust position */
+    background-color: red; /* Background color for count */
+    color: white; /* Text color for count */
+    border-radius: 50%; /* Make it circular */
+    padding: 2px 6px; /* Padding for the count */
+    font-size: 12px; /* Font size for the count */
+}
+.search_bar {
+  margin-left: 400px;
+  position: relative;
+}
+
+.search_bar input[type="text"] {
+  height: 40px;
+  padding: 20px;
+  border: 1px solid #d9d9d9;
+  width: 400px;
+  margin-top: 5px;
+  margin-left: 30px;
+  background: #f9f9f9;
+  font-size: 15px;
+}
+
+.search_bar input[type="text"]:focus {
+  width: 250px;
+}
+
+.search_bar #delivery-status {
+  display: block;
+  margin-top: 5px;
+  color: black; /* Light grey color for the placeholder text */
+  font-size: 14px;
+}
+
   </style>
 </head>
 <body>
@@ -235,6 +349,11 @@
     <div class="top_nav">
         <div class="left">
           <div class="logo"><span class="span1">Pet</span><span class="span2">Central</span></div>
+          <div class="search_bar">
+  <input type="text" id="pincode" placeholder="Enter Pincode" oninput="checkPincode()">
+  <span id="delivery-status">Enter the pincode to check whether it is deliverable or not</span>
+</div>
+
           <!-- <div class="search_bar">
           <form action="products.php" method="GET">
   <input type="text" name="search" placeholder="Search products">
@@ -244,6 +363,48 @@
       </div> 
       <div class="right">
         <ul>
+        <div class="notification-icon">
+                <a href="notifications.php" onclick="markAsRead()">
+                    <i class="fas fa-bell"></i> <!-- Notification Icon -->
+                    <span class="notification-count"><?php echo $notification_count; ?></span> <!-- Notification count -->
+                </a>
+            </div>
+            <script>
+        function markAsRead() {
+            // Make an AJAX call to mark notifications as read
+            fetch('mark_notifications_read.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Notifications marked as read.");
+                    } else {
+                        console.error("Failed to mark notifications as read.");
+                    }
+                });
+        }
+        
+        function checkPincode() {
+  const pincode = document.getElementById('pincode').value;
+  const deliveryStatus = document.getElementById('delivery-status');
+
+  if (pincode.trim() === "") {
+    deliveryStatus.textContent = "Enter the pincode to check whether it is deliverable or not";
+    deliveryStatus.style.color = "#999"; // Light grey color
+  } else if (/^68\d{4}$/.test(pincode)) {
+    deliveryStatus.textContent = "Product Delivery Available to Your Place";
+    deliveryStatus.style.color = "green";
+  } else {
+    deliveryStatus.textContent = "Product Delivery Not Available to Your Place";
+    deliveryStatus.style.color = "red";
+  }
+}
+
+    </script>
+    <li>
+                    <a href="trackorder.php" title="My Orders">
+                    <i class="fas fa-truck"></i> <!-- My Orders Icon -->
+                    </a>
+                </li>
           <!-- <li><a href="login.php#login">LogIn</a></li>
           <li><a href="login.php#register">SignUp</a></li> -->
 
@@ -261,7 +422,7 @@
     <div class="submenu">
         <a href="userdashboard.php"><b><input type="submit" value="Profile" id="button"/></b></a>
         <a href="editprofile.php"><b><input type="submit" value="Edit Profile" id="button"/></a></b>
-        <a href="userpass.php"><b><input type="submit" value="Change Password" id="button"/></a></b>
+        <a href="userpassword.php"><b><input type="submit" value="Change Password" id="button"/></a></b>
         <a href="logout.php"><b><input type="submit" value="Logout" id="button"/></a></b>
     </div>
 </li>
@@ -276,6 +437,7 @@
             
             <li><a href="mycart.php"><i class="fa fa-shopping-cart"></i></a></li>
             <li style="margin-left:-20px;"></li>
+           
             <?php
             
             
@@ -289,21 +451,40 @@
     </div>
     <div class="bottom_nav">
       <ul>
-        <li><a href="index.php">Home</a></li>
-        <li><a href="about.php">About us</a></li>
-        <li><a href="contact.php">contact</a></li>
-        <li><a href="shops.php">Products</a></li>
-        <!-- <li class="customised">customised -->
-        <!-- <div class="submenu2">
-        <a href="cake_order.php"><b><input type="submit" value="Customised cakes" id="buttons"/></b></a>
-        <a href="custom_gifts.php"><b><input type="submit" value="customised gifts" id="buttons"/></b></a>
-    </div> -->
+        <li><a href="userindex.php">Home</a></li>
+        <li><a href="image.php">Image Processing</a></li>
+        <li><a href="doctorview.php">Chat with doctor</a></li>
+        <li class="parent-menu">
+          <a href="shops.php">All Products</a>
         </li>
-        
-      </ul>
+        <li class="parent-menu">
+    <a href="#">Dog</a>
+    <div class="submenu"> <!-- Submenu for Dog -->
+        <a href="dogfood.php"><b>Dog Food</b></a>
+        <a href="dogaccessories.php"><b>Dog Accessories</b></a>
+        <a href="doggrooming.php"><b>Dog Grooming</b></a>
+    </div>
+</li>
+
+<li class="parent-menu">
+    <a href="#">Cat</a>
+    <div class="submenu"> <!-- Submenu for Dog -->
+        <a href="catfood.php"><b>Cat Food</b></a>
+        <a href="cataccessories.php"><b>Cat Accessories</b></a>
+        <a href="catgrooming.php"><b>Cat Grooming</b></a>
+    </div>
+</li>
+<li class="parent-menu">
+    <a href="displaydog.php">Pets</a>
+    <!-- <div class="submenu"> <!-- Submenu for Dog -->
+        <!-- <a href="displaydog.php"><b>Dog</b></a>
+        <a href="displaycat.php"><b>Cat</b></a> --> 
       
-  </div>
-  
+    </div>
+</li>
+
+    </ul>
+    </div>
 </div>
 </body>
 </html>
