@@ -192,7 +192,7 @@ if (isset($_SESSION['uid'])) {
         <div class="sidebar">
             <a href="userdashboard.php"><button>DASHBOARD</button></a>
             <a href="profile.php"><button>PROFILE</button></a>
-            <a href="editprofile.php"><button>EDIT PROFILE</button></a>
+            <a href="editpro.php"><button>EDIT PROFILE</button></a>
             <a href="userpassword.php"><button>PASSWORD</button></a>
             <a href="myorders.php"><button>MY ORDERS</button></a>
             <a href="mycart.php"><button>MY CART</button></a>

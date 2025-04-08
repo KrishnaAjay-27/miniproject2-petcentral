@@ -191,14 +191,14 @@
             padding: 12px 20px;
             font-size: 16px;
             color: white;
-            background-color: #5344db;
+            background-color:  #f9c74f;;
             border: none;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .product-actions button:hover {
-            background-color: #3f32a4;
+            background-color:   #f9c74f;;
         }
 
         @media (max-width: 768px) {

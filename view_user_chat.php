@@ -37,171 +37,299 @@ mysqli_close($con);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Chat Messages</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Chat Messages</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary-color: #f9c74f;
+            --secondary-color: #ffd166;
+            --accent-color: #ffba08;
+            --text-color: #333;
+            --bg-color: #fff9eb;
         }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f4f9;
+            margin: 0;
             padding: 20px;
         }
-        .container {
-            max-width: 1000px;
+
+        .page-container {
+            display: flex;
+            max-width: 1400px;
             margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            gap: 20px;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item i {
+            margin-right: 12px;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .nav-item:hover {
+            background: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-item.active i {
+            color: white;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 30px;
             text-align: center;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            color: #333;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .download-icon {
-            color: #007bff;
-            cursor: pointer;
-        }
-        .download-icon:hover {
-            color: #0056b3;
-        }
+
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.5);
         }
+
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
             max-width: 600px;
-            border-radius: 8px;
+            position: relative;
         }
+
         .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
             cursor: pointer;
         }
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
+
+        /* DataTable Customization */
+        .dataTables_wrapper {
+            margin-top: 20px;
+        }
+
+        table.dataTable thead th {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            font-weight: 600;
+            border-bottom: none;
+        }
+
+        .download-icon {
             cursor: pointer;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .download-icon:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .page-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="page-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="userdashboard.php" class="nav-item">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="profile.php" class="nav-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="editpro.php" class="nav-item">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+            <a href="userpassword.php" class="nav-item">
+                <i class="fas fa-lock"></i> Password
+            </a>
+            <a href="myorders.php" class="nav-item">
+                <i class="fas fa-shopping-bag"></i> My Orders
+            </a>
+            <a href="mycart.php" class="nav-item">
+                <i class="fas fa-shopping-cart"></i> My Cart
+            </a>
+            <a href="get_payment_details.php" class="nav-item">
+                <i class="fas fa-credit-card"></i> Payments
+            </a>
+            <a href="mywishlist.php" class="nav-item">
+                <i class="fas fa-heart"></i> Wishlist
+            </a>
+            <a href="view_user_chat.php" class="nav-item active">
+                <i class="fas fa-comments"></i> Chat
+            </a>
+            <a href="logout.php" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
 
-<div class="container">
-    <h1>Your Chat Messages</h1>
-    <?php if (empty($messages)): ?>
-        <p>No messages found.</p>
-    <?php else: ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>SI No.</th>
-                    <th>Breed Name</th>
-                    <th>Problem</th>
-                    <th>Submitted At</th>
-                    <th>Status</th>
-                    <th>Download</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $counter = 1;
-                foreach ($messages as $message): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($counter); ?></td>
-                    <td><?php echo htmlspecialchars($message['breed_name']); ?></td>
-                    <td><?php echo htmlspecialchars($message['problem']); ?></td>
-                    <td><?php echo htmlspecialchars($message['created_at']); ?></td>
-                    <td><?php echo !empty($message['reply']) ? 'Replied' : 'Pending'; ?></td>
-                    <td>
-                        <?php if (!empty($message['reply'])): ?>
-                            <i class="fas fa-download download-icon" onclick='showPrescription(<?php echo json_encode($message); ?>)'></i>
-                        <?php else: ?>
-                            -
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php 
-                $counter++;
-                endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-</div>
-
-<div id="prescriptionModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Prescription</h2>
-        <div id="prescriptionContent"></div>
-        <button onclick="generatePDF()" class="download-icon">Download PDF</button>
+        <!-- Main Content -->
+        <div class="main-content">
+            <h2>Chat Messages</h2>
+            <?php if (empty($messages)): ?>
+                <p class="text-center">No messages found.</p>
+            <?php else: ?>
+                <table id="chatTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>SI No.</th>
+                            <th>Breed Name</th>
+                            <th>Problem</th>
+                            <th>Submitted At</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $counter = 1;
+                        foreach ($messages as $message): ?>
+                            <tr>
+                                <td><?php echo $counter; ?></td>
+                                <td><?php echo htmlspecialchars($message['breed_name']); ?></td>
+                                <td><?php echo htmlspecialchars($message['problem']); ?></td>
+                                <td><?php echo htmlspecialchars($message['created_at']); ?></td>
+                                <td>
+                                    <span class="badge <?php echo !empty($message['reply']) ? 'bg-success' : 'bg-warning'; ?>">
+                                        <?php echo !empty($message['reply']) ? 'Replied' : 'Pending'; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($message['reply'])): ?>
+                                        <i class="fas fa-download download-icon" onclick='showPrescription(<?php echo json_encode($message); ?>)'></i>
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php 
+                        $counter++;
+                        endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
 
-<script>
+    <!-- Keep your existing modal and PDF generation code -->
+    <div id="prescriptionModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Prescription</h2>
+            <div id="prescriptionContent"></div>
+            <button onclick="generatePDF()" class="download-icon">Download PDF</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#chatTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[0, 'asc']], // Sort by SI No column ascending
+                columnDefs: [
+                    {
+                        targets: -1, // Last column (download)
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                language: {
+                    search: "Search messages:",
+                    lengthMenu: "Show _MENU_ messages per page",
+                }
+            });
+        });
+
+        // K<script>
     window.jsPDF = window.jspdf.jsPDF;
 
-    var modal = document.getElementById("prescriptionModal");
-    var span = document.getElementsByClassName("close")[0];
-    var currentPrescription;
+var modal = document.getElementById("prescriptionModal");
+var span = document.getElementsByClassName("close")[0];
+var currentPrescription;
 
-    function showPrescription(message) {
-        currentPrescription = message;
-        var content = document.getElementById("prescriptionContent");
-        content.innerHTML = `
-            <p><strong>Breed Name:</strong> ${message.breed_name}</p>
-            <p><strong>Age:</strong> ${message.age}</p>
-            <p><strong>Vaccination Status:</strong> ${message.vaccination_status}</p>
-            <p><strong>Problem:</strong> ${message.problem}</p>
-            <p><strong>Findings:</strong> ${message.reply}</p>
-            <p><strong>Prescribed Medicine:</strong> ${message.medicine}</p>
-            <p><strong>Doctor's Name:</strong> ${message.doctor_name}</p>
-            <p><strong>Date:</strong> ${message.created_at}</p>
-        `;
-        modal.style.display = "block";
-    }
-
-    span.onclick = function() {
+function showPrescription(message) {
+    currentPrescription = message;
+    var content = document.getElementById("prescriptionContent");
+    content.innerHTML = `
+        <p><strong>Breed Name:</strong> ${message.breed_name}</p>
+        <p><strong>Age:</strong> ${message.age}</p>
+        <p><strong>Vaccination Status:</strong> ${message.vaccination_status}</p>
+        <p><strong>Problem:</strong> ${message.problem}</p>
+        <p><strong>Findings:</strong> ${message.reply}</p>
+        <p><strong>Prescribed Medicine:</strong> ${message.medicine}</p>
+        <p><strong>Doctor's Name:</strong> ${message.doctor_name}</p>
+        <p><strong>Date:</strong> ${message.created_at}</p>
+    `;
+    modal.style.display = "block";
+}
+span.onclick = function() {
         modal.style.display = "none";
     }
 
