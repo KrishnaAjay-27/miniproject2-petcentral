@@ -152,46 +152,115 @@ if (isset($_SESSION['uid'])) {
   align-items: center;
 }
 
-.wrapper .bottom_nav ul li a{
-  color:black;
-  text:bold;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  width:80px;
-  font-size: 12px;
+.wrapper .bottom_nav ul li a {
+    color: black;
+    text-decoration: none !important;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    width: 80px;
+    font-size: 12px;
+    position: relative;
+    padding: 8px 15px;
+    transition: all 0.3s ease;
 }
 
+.wrapper .bottom_nav ul li a:hover {
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.2);
+    text-decoration: none !important;
+}
 
 .parent-menu {
-  display: inline-block;
   position: relative;
+   padding: 8px 7px; 
+ 
 }
 
-    .parent-menu .submenu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background-color: white;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-      z-index: 1;
-    }
+
+.parent-menu > a {
+  position: relative;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.parent-menu > a::after {
+  content: '\f107';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  margin-left: 5px;
+  transition: transform 0.3s ease;
+}
+
+.parent-menu:hover > a::after {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  min-width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  padding: 8px 0;
+}
 
 .parent-menu:hover .submenu {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .submenu a {
-  display: block;
+  display: flex;
+  padding: 12px 20px;
+  color: #333;
   text-decoration: none;
-  color: #494949;
-  height:40px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  align-items: center;
+}
+
+.submenu a::before {
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.submenu a[href*="food"]::before {
+  content: '\f2e7';
+  color: #ff6b6b;
+}
+
+.submenu a[href*="accessories"]::before {
+  content: '\f1b0';
+  color: #4ecdc4;
+}
+
+.submenu a[href*="grooming"]::before {
+  content: '\f6fc';
+  color: #45b7d1;
 }
 
 .submenu a:hover {
-  background-color: #f2f2f2;
+  background: #f8f9fa;
+  padding-left: 25px;
 }
+
+.submenu a:not(:last-child) {
+  border-bottom: 1px solid #f1f1f1;
+}
+
 #button {
   display: block;
   width: 100%;
@@ -342,6 +411,23 @@ nav a {
   font-size: 14px;
 }
 
+.bottom_nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background: #333;
+    left: 0;
+    bottom: -2px;
+    transition: width 0.3s ease;
+    opacity: 0;
+}
+
+.bottom_nav ul li a:hover::after {
+    width: 100%;
+    opacity: 1;
+}
+
   </style>
 </head>
 <body>
@@ -420,9 +506,8 @@ nav a {
     <i class='fa fa-user' style='color: #494949;padding-right:5px;'></i>
     <?php echo $row['name'] ; ?>
     <div class="submenu">
-        <a href="userdashboard.php"><b><input type="submit" value="Profile" id="button"/></b></a>
-        <a href="editprofile.php"><b><input type="submit" value="Edit Profile" id="button"/></a></b>
-        <a href="userpassword.php"><b><input type="submit" value="Change Password" id="button"/></a></b>
+        <a href="userdashboard.php"><b><input type="submit" value="Dashboard" id="button"/></b></a>
+        
         <a href="logout.php"><b><input type="submit" value="Logout" id="button"/></a></b>
     </div>
 </li>
@@ -452,14 +537,18 @@ nav a {
     <div class="bottom_nav">
       <ul>
         <li><a href="userindex.php">Home</a></li>
+        <li><a href="book_appointments.php">Appointments</a></li>
         <li><a href="image.php">Image Processing</a></li>
+        <li><a href="view_video_by_user.php">Videos</a></li>
+        <li><a href="uploads.php">Disease</a></li>
         <li><a href="doctorview.php">Chat with doctor</a></li>
         <li class="parent-menu">
-          <a href="shops.php">All Products</a>
+          <a href="shops.php"> All Products </a>
         </li>
+
         <li class="parent-menu">
     <a href="#">Dog</a>
-    <div class="submenu"> <!-- Submenu for Dog -->
+    <div class="submenu">
         <a href="dogfood.php"><b>Dog Food</b></a>
         <a href="dogaccessories.php"><b>Dog Accessories</b></a>
         <a href="doggrooming.php"><b>Dog Grooming</b></a>
@@ -468,7 +557,7 @@ nav a {
 
 <li class="parent-menu">
     <a href="#">Cat</a>
-    <div class="submenu"> <!-- Submenu for Dog -->
+    <div class="submenu">
         <a href="catfood.php"><b>Cat Food</b></a>
         <a href="cataccessories.php"><b>Cat Accessories</b></a>
         <a href="catgrooming.php"><b>Cat Grooming</b></a>

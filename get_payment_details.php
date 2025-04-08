@@ -39,82 +39,231 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment History</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
-        
+    
     <style>
+        :root {
+            --primary-color: #f9c74f;
+            --secondary-color: #ffd166;
+            --accent-color: #ffba08;
+            --text-color: #333;
+            --bg-color: #fff9eb;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f4f9;
             margin: 0;
             padding: 20px;
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
+        .page-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
         }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            height: fit-content;
         }
 
-        th, td {
-            border: 1px solid #ddd;
+        .nav-item {
+            display: flex;
+            align-items: center;
             padding: 12px 15px;
-            text-align: left;
+            margin: 8px 0;
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
 
-        th {
-            background-color:#f9c74f; /* Green background */
-            color: white; /* White text */
-            font-weight: bold;
-            text-transform: uppercase;
+        .nav-item i {
+            margin-right: 12px;
+            font-size: 18px;
+            color: var(--primary-color);
         }
 
-        tr:nth-child(even) {
-            background-color: #f2f2f2; /* Light gray for even rows */
+        .nav-item:hover {
+            background: var(--secondary-color);
+            transform: translateX(5px);
         }
 
-        tr:hover {
-            background-color: #f1f1f1; /* Light gray on hover */
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-item.active i {
+            color: white;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* DataTable Customization */
+        .dataTables_wrapper {
+            margin-top: 20px;
+        }
+
+        table.dataTable thead th {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            font-weight: 600;
+            border-bottom: none;
         }
 
         .download-icon {
             cursor: pointer;
-            color: #007bff; /* Bootstrap primary color */
-            transition: color 0.3s;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
         }
 
         .download-icon:hover {
-            color: #0056b3; /* Darker blue on hover */
+            color: var(--accent-color);
+            transform: scale(1.1);
         }
 
         @media (max-width: 768px) {
-            th, td {
-                padding: 10px;
-                font-size: 14px;
+            .page-container {
+                flex-direction: column;
             }
-        }
 
-        @media (max-width: 480px) {
-            th, td {
-                padding: 8px;
-                font-size: 12px;
+            .sidebar {
+                width: 100%;
+                margin-bottom: 20px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="page-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="userdashboard.php" class="nav-item">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="profile.php" class="nav-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="editpro.php" class="nav-item">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+            <a href="userpassword.php" class="nav-item">
+                <i class="fas fa-lock"></i> Password
+            </a>
+            <a href="myorders.php" class="nav-item">
+                <i class="fas fa-shopping-bag"></i> My Orders
+            </a>
+            <a href="mycart.php" class="nav-item">
+                <i class="fas fa-shopping-cart"></i> My Cart
+            </a>
+            <a href="get_payment_details.php" class="nav-item active">
+                <i class="fas fa-credit-card"></i> Payments
+            </a>
+            <a href="mywishlist.php" class="nav-item">
+                <i class="fas fa-heart"></i> Wishlist
+            </a>
+            <a href="view_user_chat.php" class="nav-item">
+                <i class="fas fa-comments"></i> Chat
+            </a>
+            <a href="logout.php" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h2>Payment History</h2>
+            <table id="paymentsTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>SI No.</th>
+                        <th>Order ID</th>
+                        <th>Amount</th>
+                        <th>Payment Status</th>
+                        <th>Payment Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $counter = 1;
+                    while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($counter); ?></td>
+                        <td><?php echo htmlspecialchars($row['order_id']); ?></td>
+                        <td>Rs. <?php echo htmlspecialchars($row['amount']); ?></td>
+                        <td>
+                            <span class="badge <?php echo $row['payment_status'] == 'Completed' ? 'bg-success' : 'bg-warning'; ?>">
+                                <?php echo htmlspecialchars($row['payment_status']); ?>
+                            </span>
+                        </td>
+                        <td><?php echo htmlspecialchars($row['payment_date']); ?></td>
+                        <td>
+                            <i class="fas fa-download download-icon" onclick='downloadPDF(<?php echo json_encode($row); ?>)'></i>
+                        </td>
+                    </tr>
+                    <?php $counter++; ?>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         window.jsPDF = window.jspdf.jsPDF;
+        
+        $(document).ready(function() {
+            $('#paymentsTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[0, 'asc']], // Sort by SI No column ascending
+                columnDefs: [
+                    {
+                        targets: -1, // Last column (download)
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                language: {
+                    search: "Search payments:",
+                    lengthMenu: "Show _MENU_ payments per page",
+                }
+            });
+        });
 
+        // Keep your existing downloadPDF function
         function downloadPDF(paymentData) {
             const doc = new jsPDF();
             const logoUrl = 'images/logo.gif'; // Adjust path to your logo
@@ -163,37 +312,6 @@ $result = $stmt->get_result();
             doc.save(`payment_${paymentData.payment_id}.pdf`);
         }
     </script>
-
-    <h1>Payment History</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>SI No.</th>
-                <th>Order ID</th>
-                <th>Amount</th>
-                <th>Payment Status</th>
-                <th>Payment Date</th>
-                <th>Download</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php 
-            $counter = 1;
-            while ($row = $result->fetch_assoc()): ?>
-            <tr>
-                <td><?php echo htmlspecialchars($counter); ?></td>
-                <td><?php echo $row['order_id']; ?></td>
-                <td><?php echo $row['amount']; ?></td>
-                <td><?php echo $row['payment_status']; ?></td>
-                <td><?php echo $row['payment_date']; ?></td>
-                <td>
-                    <i class="fas fa-download download-icon" onclick='downloadPDF(<?php echo json_encode($row); ?>)'></i>
-                </td>
-            </tr>
-            <?php $counter++; // Increment counter ?>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
 </body>
 </html>
 
