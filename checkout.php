@@ -102,8 +102,7 @@
                       $("#next2").prop('disabled',true);
                       district_error = true;
                     }
-                }
-
+                
                 function check_pin()
                 {
                     var pattern = /^\s*6\d{5}\s*$/;
